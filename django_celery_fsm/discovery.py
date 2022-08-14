@@ -16,7 +16,7 @@ class FSMTasksDiscovery:
         django.setup()
         for app in apps.get_app_configs():
             try:
-                f = f"{app.name}.fsms"
+                f = f'{app.name}.fsms'
                 fsms = importlib.import_module(f)
                 for name, obj in inspect.getmembers(fsms):
                     if inspect.isclass(obj) and issubclass(obj, BaseTask) and obj is not BaseTask:

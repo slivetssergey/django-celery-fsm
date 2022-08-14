@@ -7,8 +7,8 @@ class BaseFSMModel(models.Model):
 
     def set_processing_error(self, status: str, msg: str):
         self.processing_error = {
-            "status": status,
-            "msg": msg,
+            'status': status,
+            'msg': msg,
         }
 
     class Meta:
