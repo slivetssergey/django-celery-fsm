@@ -1,0 +1,49 @@
+name: Check
+
+on:
+  push:
+    branches:
+      - 'master'
+  pull_request:
+
+jobs:
+  create-virtualenv:
+    name: Create virtualenv
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v2
+        with:
+          fetch-depth: 0
+      - uses: actions/setup-python@v2
+        with:
+          python-version: '3.9'
+      - uses: syphar/restore-virtualenv@v1
+        id: cache-virtualenv
+      - uses: syphar/restore-pip-download-cache@v1
+        if: steps.cache-virtualenv.outputs.cache-hit != 'true'
+      - name: Install dependencies
+        run: |
+          pip install --upgrade pip setuptools wheel
+          pip install -r requirements_dev.txt --upgrade --force-reinstall
+        if: steps.cache-virtualenv.outputs.cache-hit != 'true'
+
+  check-quality:
+    name: Checking code quality
+    runs-on: ubuntu-latest
+    needs: create-virtualenv
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v2
+      - uses: actions/setup-python@v2
+        with:
+          python-version: '3.9'
+      - uses: syphar/restore-virtualenv@v1
+        id: cache-virtualenv
+      - name: Install dependencies
+        run: |
+          pre-commit install --hook-type commit-msg
+          pre-commit install
+      - name: Check code
+        run: |
+          pre-commit run -a
